@@ -1,54 +1,20 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "../screens/Home";
-import Search from "../screens/Search";
-import Create from "../screens/Create";
-import { AntDesign } from "@expo/vector-icons";
-import { EvilIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { createStackNavigator } from "@react-navigation/stack";
 import { useSelector } from "react-redux";
-import Header from "../screens/Header/index";
+import { View } from "react-native";
+import Entypo from "react-native-vector-icons/Entypo";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Feather from "react-native-vector-icons/Feather";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Home from "../screens/Home/index";
+import Search from "../screens/Search/index";
+import BookMark from "../screens/BookMark/index";
 
-const BottonTab = () => {
-  const Tab = createBottomTabNavigator();
-  const HomeStack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+const BottomTab = () => {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
-
-  const tabBarOptions = {
-    activeTintColor: isDarkMode ? "#fff" : "#000",
-    inactiveTintColor: isDarkMode ? "#888" : "#888",
-    style: {
-      backgroundColor: isDarkMode ? "#000" : "#fff",
-    },
-  };
-
-  const HomeStackScreen = () => (
-    <HomeStack.Navigator screenOptions={tabBarOptions}>
-      <HomeStack.Screen
-        name="MainHome"
-        component={Home}
-        options={{ headerShown: false }}
-      />
-      <HomeStack.Screen
-        name="New Task"
-        component={Create}
-        options={{
-          headerLeftContainerStyle: {
-            width: 25, // Adjust the value to increase or decrease the spacing
-          },
-          headerTitleStyle: {
-            paddingLeft: 10, // Adjust the value to increase or decrease the spacing
-            fontSize: 15,
-          },
-        }}
-      />
-    </HomeStack.Navigator>
-  );
 
   return (
     <Tab.Navigator
@@ -60,11 +26,10 @@ const BottonTab = () => {
       }}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeStackScreen}
+        name="BottomTab"
+        component={Home}
         options={{
           tabBarLabel: "Home",
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <View>
               {focused ? (
@@ -87,38 +52,12 @@ const BottonTab = () => {
           },
         }}
       />
-      {/* <Tab.Screen
-        name="Create"
-        component={Create}
-        options={{
-          tabBarLabel: "Create",
-          tabBarIcon: ({ color, size, focused }) => (
-            <View
-              style={{
-                backgroundColor: "#a76fff",
-                borderRadius: 12, // Adjust the value as needed
-                padding: 3,
-              }}
-            >
-              <Ionicons
-                name="add"
-                size={24}
-                color={focused ? "#000" : "#fff"}
-              />
-            </View>
-          ),
-
-          tabBarLabelStyle: {
-            color: "black",
-          },
-        }}
-      /> */}
       <Tab.Screen
         name="BookMark"
-        component={Search}
+        component={BookMark}
         options={{
           tabBarLabel: "BookMark",
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <View>
               {focused ? (
                 <FontAwesome
@@ -140,13 +79,12 @@ const BottonTab = () => {
           },
         }}
       />
-
       <Tab.Screen
         name="Notifications"
         component={Search}
         options={{
           tabBarLabel: "Notifications",
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ focused }) => (
             <View>
               {focused ? (
                 <Ionicons
@@ -172,6 +110,4 @@ const BottonTab = () => {
   );
 };
 
-export default BottonTab;
-
-const styles = StyleSheet.create({});
+export default BottomTab;

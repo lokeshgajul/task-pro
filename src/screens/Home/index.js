@@ -9,10 +9,11 @@ import {
   Pressable,
   ProgressBarAndroid,
   TouchableOpacity,
+  Platform,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import Header from "../Header/index";
+import React, { useEffect, useRef, useState } from "react";
 const screenHeight = Dimensions.get("screen").height;
+import { Button, Menu, Divider, PaperProvider } from "react-native-paper";
 const screenWidth = Dimensions.get("screen").width;
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -21,7 +22,40 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 
 const Index = ({ navigation }) => {
+  const [showOption, setShowOption] = useState();
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const menuRef = useRef(null);
+
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+
+  const openMenu = (event) => {
+    const { pageX, pageY } = event.nativeEvent;
+
+    // Calculate menu position relative to the click position
+    const menuPositionTop = pageY - 140; // Adjust this value as needed
+    const menuPositionLeft = pageX - 150;
+
+    console.log(
+      "page x",
+      pageX,
+      "page y ",
+      pageY,
+      "menupostionTop ",
+      menuPositionTop,
+      "menupostionLeft ",
+      menuPositionLeft
+    );
+    // Set the menu position
+    setMenuPosition({ top: menuPositionTop, left: menuPositionLeft });
+
+    // Show the menu
+    setShowOption(true);
+  };
+
+  const closeMenu = () => {
+    setShowOption(false);
+    setMenuPosition({ top: 0, right: 0 });
+  };
   return (
     <View style={{ flex: 1, paddingHorizontal: 20 }}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -187,6 +221,46 @@ const Index = ({ navigation }) => {
           </View>
         </View>
 
+        {showOption && (
+          <View
+            style={{
+              position: "absolute",
+              top: menuPosition.top,
+              left: menuPosition.left,
+              width: screenWidth / 3, // Adjust width as needed
+              backgroundColor: "#FFFFFF",
+              height: Dimensions.get("window").height / 5.5, // Adjust height as needed
+              borderRadius: 5,
+              // borderColor: "#000",
+              // borderWidth: 0.5,
+              elevation: 5,
+              zIndex: 2,
+            }}
+          >
+            <Menu.Item
+              leadingIcon="delete"
+              onPress={() => {}}
+              title="Delete"
+              titleStyle={{ color: "red", fontSize: 12 }}
+              style={{ height: 40 }} // Adjust height as needed
+            />
+            <Menu.Item
+              leadingIcon="bookmark"
+              onPress={() => {}}
+              title="Bookmark"
+              titleStyle={{ fontSize: 12 }}
+              style={{ height: 40 }} // Adjust height as needed
+            />
+            <Menu.Item
+              leadingIcon="content-paste"
+              onPress={closeMenu}
+              title="Paste"
+              titleStyle={{ fontSize: 12 }}
+              style={{ height: 40 }} // Adjust height as needed
+            />
+          </View>
+        )}
+
         <View style={{ marginBottom: 10 }}>
           {[1, 2, 3].map((item, index) => {
             return (
@@ -194,13 +268,13 @@ const Index = ({ navigation }) => {
                 key={index}
                 style={{
                   backgroundColor: isDarkMode ? "#333637" : "#E4F0FE",
-                  // backgroundColor: "#DDD2FC",
                   paddingTop: 10,
                   paddingHorizontal: 10,
                   paddingBottom: 15,
                   height: 90,
                   marginTop: 15,
                   borderRadius: 15,
+                  position: "relative", // Ensure position is relative for absolute positioning of menu
                   elevation: 1.5,
                 }}
               >
@@ -232,7 +306,7 @@ const Index = ({ navigation }) => {
                         color: isDarkMode ? "#9a9c9f" : "#000",
                       }}
                     >
-                      7 Days ago{" "}
+                      7 Days ago
                     </Text>
                   </View>
                   <View
@@ -253,7 +327,7 @@ const Index = ({ navigation }) => {
                         color: isDarkMode ? "#9ea0a3" : "#000",
                       }}
                     >
-                      HIGH{" "}
+                      HIGH
                     </Text>
                   </View>
                 </View>
@@ -267,15 +341,20 @@ const Index = ({ navigation }) => {
                       color: isDarkMode ? "#9ea0a3" : "#5e6465",
                     }}
                   >
-                    Business consultation with our partners{" "}
+                    Business consultation with our partners
                   </Text>
                 </View>
 
-                <TouchableOpacity style={{ alignItems: "flex-end" }}>
+                <TouchableOpacity
+                  style={{
+                    alignItems: "flex-end",
+                  }}
+                  onPress={openMenu}
+                >
                   <MaterialCommunityIcons
                     name="dots-vertical"
                     size={18}
-                    color="black"
+                    color={isDarkMode ? "white" : "black"}
                   />
                 </TouchableOpacity>
               </View>
@@ -302,6 +381,7 @@ const Index = ({ navigation }) => {
           />
         </View>
       </Pressable>
+      {/* </MenuView> */}
     </View>
   );
 };

@@ -10,19 +10,22 @@ import {
   Pressable,
   FlatList,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 // import {
 //   actions,
 //   RichEditor,
 //   RichToolbar,
 // } from "react-native-pell-rich-editor";
+import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import task from "../../../assets/task.jpeg";
 import DateTimePicker from "react-native-modal-datetime-picker";
+import { Ionicons } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import Header from "../Header/index";
+import { useSelector } from "react-redux";
+import axios from "axios";
 const screenHeight = Dimensions.get("screen").height;
 const screenWidth = Dimensions.get("screen").width;
 
@@ -31,14 +34,16 @@ const handleHead = ({ tintColor }) => (
 );
 
 const Index = ({ navigation }) => {
-  const richText = useRef();
-  const todayDate = new Date();
   const [isEnabled, setIsEnabled] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-  const [category, setCategory] = useState(false);
+  const [category, setCategory] = useState({ id: null, name: "" });
   const [showDate, setShowDate] = useState();
   const [showTime, setShowTime] = useState();
+  const [title, setTitle] = useState();
+  const [desc, setDesc] = useState("");
+  const [loading, setLoading] = useState(false);
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   const showDatePicker = () => {
     setIsDatePickerVisible(true);
@@ -118,19 +123,19 @@ const Index = ({ navigation }) => {
     <TouchableOpacity
       style={[
         styles.gridItem,
-        { backgroundColor: category === item.id ? "#fef4e8" : "#ebf3fe" },
+        { backgroundColor: category.id === item.id ? "#fef4e8" : "#ebf3fe" },
       ]}
       onPress={() => {
-        setCategory(item.id);
-        console.log("item.id", item.id);
+        setCategory(item);
+        console.log("item.id", item.id, "name ", item.name);
       }}
     >
       <Text
         style={[
           styles.categoryTitle,
           {
-            color: category === item.id ? "#f72989" : "#000",
-            fontWeight: category === item.id ? "600" : "400",
+            color: category.id === item.id ? "#f72989" : "#000",
+            fontWeight: category.id === item.id ? "600" : "400",
           },
         ]}
       >
@@ -139,40 +144,63 @@ const Index = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const createTask = async () => {
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://192.168.0.103:3020/api/tasks",
+        {
+          title,
+          date: new Date(showDate).toLocaleDateString(),
+          startingTime: showTime,
+          description: desc,
+          category: category.name,
+        },
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Add any other headers you need here
+            // For example, Authorization: `Bearer ${token}`
+          },
+        }
+      );
+      console.log("Task created:", response.data);
+      setLoading(false); // Stop loading
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Error creating task:", error);
+      // Handle error (e.g., show error message)
+    }
+  };
+
   useEffect(() => {
     console.log("state ", isEnabled);
   }, [isEnabled]);
 
   return (
     <>
-      {/* <View
+      <Pressable
         style={{
+          flexDirection: "row",
           alignItems: "center",
-          backgroundColor: "#fef4e8",
+          padding: 15,
         }}
+        onPress={() => navigation.goBack()}
       >
-        <View
-          style={{
-            height: screenHeight / 4,
-            width: screenWidth - 50,
-            alignItems: "center",
-          }}
-        >
-          <Image
-            style={{
-              width: "100%",
-              height: "100%",
-              alignItems: "center",
-            }}
-            source={task}
-          />
-        </View>
-      </View> */}
+        <AntDesign
+          name="arrowleft"
+          size={20}
+          color={isDarkMode ? "#fff" : "#000"}
+          marginRight={6}
+        />
+        <Text style={{ color: isDarkMode ? "#fff" : "#000" }}>New Task</Text>
+      </Pressable>
 
       <ScrollView
         style={{
           paddingHorizontal: 15,
-          // backgroundColor: "#fff",
           flex: 1,
         }}
       >
@@ -184,14 +212,30 @@ const Index = ({ navigation }) => {
             marginBottom: 10,
           }}
         >
-          <Text style={{ color: "#757a89", fontSize: 12 }}>Title</Text>
-          <TextInput
-            placeholder="First task"
+          <Text
             style={{
-              color: "#544",
-              fontSize: 15,
-              paddingTop: 5,
+              color: isDarkMode ? "#fff" : "#363738",
+              fontWeight: "600",
+              letterSpacing: 0.4,
+              fontSize: 13,
             }}
+          >
+            Title
+          </Text>
+          <TextInput
+            placeholder="Enter Title"
+            value={title}
+            onChangeText={(text) => {
+              setTitle(text);
+              console.log("title ", text);
+            }}
+            style={{
+              color: isDarkMode ? "#c7c9ce" : "#1e1c1c",
+              fontSize: 12,
+              paddingTop: 5,
+              fontWeight: "400",
+            }}
+            placeholderTextColor={isDarkMode ? "#dce0e8" : "#7c7e81"}
           />
         </View>
         <View
@@ -207,8 +251,10 @@ const Index = ({ navigation }) => {
           <View style={{}}>
             <Text
               style={{
-                color: "#757a89",
-                fontSize: 12,
+                color: isDarkMode ? "#fff" : "#363738",
+                fontWeight: "600",
+                letterSpacing: 0.4,
+                fontSize: 13,
               }}
             >
               Date{" "}
@@ -217,16 +263,23 @@ const Index = ({ navigation }) => {
               placeholder="date"
               value={SelectedDate}
               style={{
-                color: "#544",
-                fontSize: 13,
+                color: isDarkMode ? "#c7c9ce" : "#1e1c1c",
+                fontSize: 12,
+                paddingTop: 5,
+                fontWeight: "400",
               }}
+              placeholderTextColor={isDarkMode ? "#dce0e8" : "#7c7e81"}
             />
           </View>
           <Pressable
             onPress={showDatePicker}
             style={{ justifyContent: "center" }}
           >
-            <Fontisto name="date" size={20} color="black" />
+            <Fontisto
+              name="date"
+              size={20}
+              color={isDarkMode ? "white" : "black"}
+            />
           </Pressable>
         </View>
         <View
@@ -240,17 +293,26 @@ const Index = ({ navigation }) => {
           }}
         >
           <View>
-            <Text style={{ color: "#757a89", fontSize: 12 }}>
+            <Text
+              style={{
+                color: isDarkMode ? "#fff" : "#363738",
+                fontWeight: "600",
+                letterSpacing: 0.4,
+                fontSize: 13,
+              }}
+            >
               Starting Time{" "}
             </Text>
             <TextInput
               placeholder="time"
               value={SelectedTime}
               style={{
-                color: "#544",
-                fontSize: 13,
-                letterSpacing: 0.3,
+                color: isDarkMode ? "#c7c9ce" : "#1e1c1c",
+                fontSize: 12,
+                paddingTop: 5,
+                fontWeight: "400",
               }}
+              placeholderTextColor={isDarkMode ? "#dce0e8" : "#7c7e81"}
             />
           </View>
 
@@ -258,7 +320,11 @@ const Index = ({ navigation }) => {
             onPress={showTimePicker}
             style={{ justifyContent: "center" }}
           >
-            <Entypo name="back-in-time" size={20} color="black" />
+            <Entypo
+              name="back-in-time"
+              size={20}
+              color={isDarkMode ? "white" : "black"}
+            />
           </Pressable>
         </View>
         <View
@@ -269,24 +335,64 @@ const Index = ({ navigation }) => {
             marginBottom: 10,
           }}
         >
-          <Text style={{ color: "#757a89", fontSize: 12 }}>Description</Text>
-
-          <TextInput
-            multiline={true}
-            numberOfLines={5}
-            placeholder="description..."
+          <Text
             style={{
-              color: "#544",
-              fontSize: 15,
-              marginTop: -22,
+              color: isDarkMode ? "#fff" : "#363738",
+              fontWeight: "600",
+              letterSpacing: 0.4,
+              fontSize: 13,
             }}
-          />
+          >
+            Description
+          </Text>
+
+          <View style={{ marginTop: -25 }}>
+            <TextInput
+              multiline={true}
+              numberOfLines={5}
+              placeholder="description..."
+              value={desc}
+              onChangeText={(text) => {
+                setDesc(text);
+                console.log("Desc", text);
+              }}
+              style={{
+                color: isDarkMode ? "#c7c9ce" : "#1e1c1c",
+                fontSize: 12,
+                paddingTop: 5,
+                fontWeight: "400",
+              }}
+              placeholderTextColor={isDarkMode ? "#dce0e8" : "#7c7e81"}
+            />
+          </View>
         </View>
 
         <View>
-          <Text style={{ color: "#757a89", fontSize: 13, paddingTop: 5 }}>
-            Category{" "}
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: 5,
+            }}
+          >
+            <Text style={{ color: "#757a89", fontSize: 13, marginTop: -5 }}>
+              Category{" "}
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#757a89",
+                padding: 2,
+                borderRadius: 20,
+              }}
+            >
+              <Ionicons
+                name="add"
+                size={20}
+                color={isDarkMode ? "white" : "black"}
+              />
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={data}
             renderItem={({ item }) => <GridItem item={item} />}
@@ -340,21 +446,26 @@ const Index = ({ navigation }) => {
             marginTop: 10,
             borderRadius: 10,
           }}
-          onPress={() => navigation.navigate("Home")}
+          onPress={createTask}
+          disabled={loading} // Disable button while loading
         >
-          <Text
-            style={{
-              padding: 8,
-              letterSpacing: 0.4,
-              backgroundColor: "#ff5467",
-              color: "#fff",
-              fontSize: 11,
-              borderRadius: 10,
-              textTransform: "capitalize",
-            }}
-          >
-            create task
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text
+              style={{
+                padding: 8,
+                letterSpacing: 0.4,
+                backgroundColor: "#ff5467",
+                color: "#fff",
+                fontSize: 11,
+                borderRadius: 10,
+                textTransform: "capitalize",
+              }}
+            >
+              Create Task
+            </Text>
+          )}
         </TouchableOpacity>
 
         <DateTimePicker

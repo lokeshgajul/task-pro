@@ -1,12 +1,9 @@
-import { StatusBar, StyleSheet, SafeAreaView } from "react-native";
 import React from "react";
-import Navigation from "./BottonTab";
-import { useSelector } from "react-redux";
-import {
-  NavigationContainer,
-  DefaultTheme,
-  DarkTheme,
-} from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar, StyleSheet, SafeAreaView } from "react-native";
+import { useSelector, Provider } from "react-redux";
+import StackNavigator from "./Stack";
+import store from "../redux/store/store";
 import Header from "../screens/Header/index";
 
 const Index = () => {
@@ -32,12 +29,11 @@ const Index = () => {
           barStyle={isDarkMode ? "light-content" : "dark-content"}
         />
         <Header />
-        <Navigation />
+        <StackNavigator />
       </SafeAreaView>
     </NavigationContainer>
   );
 };
-
 export default Index;
 
 const styles = StyleSheet.create({

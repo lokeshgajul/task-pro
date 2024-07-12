@@ -1,10 +1,12 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import profile from "../../../assets/profile.jpeg";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleTheme } from "../../redux/slices/ThemeSlice";
 import { Entypo } from "@expo/vector-icons";
+import * as NavigationBar from "expo-navigation-bar";
+
 const Index = () => {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
   const dispatch = useDispatch();
@@ -13,7 +15,16 @@ const Index = () => {
     dispatch(toggleTheme());
   };
 
-  console.log("theme header", isDarkMode);
+  const handleBottomNavigation = () => {
+    const color = isDarkMode ? "#28292b" : "#fff";
+    NavigationBar.setBackgroundColorAsync(color);
+    console.log("bottom ", isDarkMode);
+  };
+  useEffect(() => {
+    handleBottomNavigation();
+  }, [isDarkMode]);
+
+  // console.log("theme header", isDarkMode);
   return (
     <View
       style={{
@@ -60,7 +71,12 @@ const Index = () => {
         </View>
       </View>
 
-      <Pressable onPress={() => handleToggleSwitch()}>
+      <Pressable
+        onPress={() => {
+          handleToggleSwitch();
+          handleBottomNavigation();
+        }}
+      >
         {isDarkMode ? (
           <Entypo name="light-up" size={24} color="#fff" />
         ) : (
