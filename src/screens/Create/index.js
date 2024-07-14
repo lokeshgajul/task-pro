@@ -404,7 +404,6 @@ const Index = ({ navigation }) => {
 
         <View
           style={{
-            marginTop: 15,
             flexDirection: "row",
             justifyContent: "space-between",
           }}

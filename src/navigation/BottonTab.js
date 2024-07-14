@@ -10,6 +10,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Home from "../screens/Home/index";
 import Search from "../screens/Search/index";
 import BookMark from "../screens/BookMark/index";
+import SignUp from "../screens/Signup";
+import Login from "../screens/Login";
 
 const Tab = createBottomTabNavigator();
 
@@ -81,7 +83,7 @@ const BottomTab = () => {
       />
       <Tab.Screen
         name="Notifications"
-        component={Search}
+        component={Login}
         options={{
           tabBarLabel: "Notifications",
           tabBarIcon: ({ focused }) => (
