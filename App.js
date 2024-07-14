@@ -19,11 +19,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        {/* {loggedInUser ? ( */}
         <Navigation />
-        {/* // ) : (
-        //   <SignUp onChangeLoggedInUser={handleUserChange} />
-        // )} */}
       </GestureHandlerRootView>
     </Provider>
   );
